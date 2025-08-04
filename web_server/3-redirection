@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
-# Script that installs Nginx server and redirects /redirect_me
+# This script installs and configures Nginx to redirect /redirect_me to YouTube with a 301 status
 
-sudo apt-get -y update
-sudo apt-get -y install nginx
-sudo ufw allow 'Nginx HTTP'
-echo "Holberton School" | sudo tee /var/www/html/index
-sudo sed -i '/listen 80 default_server/a rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4/ permanent;' /etc/nginx/sites-available/default
-sudo service nginx restart
+# Exit on error
+set -e
+
+# Update packages
+apt-get update -y
+
+# Install nginx
+apt-get install -y nginx
+
+# Replace default index page
+echo "Holberton School for the win!" > /var/www/html/index.nginx-debian.html
+
+# Configure 301 redirect in default site config
+sed -i '/server_name _;/a \\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}' /etc/nginx/sites-available/default
+
+# Restart nginx (without systemctl)
+service nginx restart
+

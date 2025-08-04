@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
-# Script that installs Nginx server, redirects /redirect_me and customizes 404 not found
+# This script installs and configures Nginx with a custom 404 page that says "Ceci n'est pas une page"
 
-sudo apt-get -y update
-sudo apt-get -y install nginx
-sudo ufw allow "Nginx HTTP"
-echo "Ceci n'est pas une page" | sudo tee /usr/share/nginx/html/404.html
-newlines="\\\terror_page 404 /404.html;\n\tlocation = /404.html {\n\t\troot /usr/share/nginx/html;\n\t\tinternal;\n\t}"
-sudo sed -i "27i $newlines" /etc/nginx/sites-available/default
-sudo service nginx restart
+# Exit on any error
+set -e
+
+# Update packages
+apt-get update -y
+
+# Install nginx
+apt-get install -y nginx
+
+# Replace default index page
+echo "Holberton School for the win!" > /var/www/html/index.nginx-debian.html
+
+# Create the custom 404 page
+echo "Ceci n'est pas une page" > /var/www/html/custom_404.html
+
+# Configure Nginx to use the custom 404 page
+sed -i '/server_name _;/a \\terror_page 404 /custom_404.html;' /etc/nginx/sites-available/default
+
+# Restart nginx without systemctl
+service nginx restart
+
